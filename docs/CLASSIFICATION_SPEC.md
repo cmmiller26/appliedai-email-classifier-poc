@@ -2,21 +2,26 @@
 
 ## Overview
 
-This document defines how emails are classified using Azure AI Foundry with Azure OpenAI Service and GPT models. The system uses preset categories for the POC with an extensible design for future user-defined categories.
+This document defines how emails are classified using Azure AI Foundry with
+Azure OpenAI Service and GPT models. The system uses preset categories for
+the POC with an extensible design for future user-defined categories.
 
 ---
 
 ## Preset Categories (POC v0.1)
 
 ### 1. URGENT 🔴
+
 **Description:** Time-sensitive emails requiring immediate attention.
 
 **Characteristics:**
+
 - Contains deadline language ("due today", "by 5pm", "urgent")
 - Action verbs ("respond immediately", "confirm by")
 - High-priority senders (professors with assignments, registration deadlines)
 
 **Examples:**
+
 - "Assignment due tonight at 11:59 PM"
 - "Final exam location change - please confirm"
 - "Action required: Financial aid deadline tomorrow"
@@ -24,14 +29,18 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 ---
 
 ### 2. ACADEMIC 📚
-**Description:** Class-related emails including assignments, grades, lectures, and course materials.
+
+**Description:** Class-related emails including assignments, grades, lectures,
+and course materials.
 
 **Characteristics:**
+
 - From professors, TAs, or course management systems
 - Contains course codes (CS 4980, MATH 2850)
 - Keywords: assignment, exam, lecture, grade, syllabus, office hours
 
 **Examples:**
+
 - "CS 4980: Week 5 lecture notes posted"
 - "Your midterm grade is available"
 - "TA office hours rescheduled"
@@ -39,14 +48,17 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 ---
 
 ### 3. ADMINISTRATIVE 🏛️
+
 **Description:** University business, registration, forms, official notices.
 
 **Characteristics:**
+
 - From university departments (Registrar, Bursar, Housing)
 - Keywords: registration, enrollment, tuition, forms, policy, requirement
 - Official tone and formatting
 
 **Examples:**
+
 - "Fall 2026 registration opens November 1"
 - "Complete your housing application"
 - "University policy update notification"
@@ -54,14 +66,17 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 ---
 
 ### 4. SOCIAL 🎉
+
 **Description:** Events, club meetings, social gatherings, and community announcements.
 
 **Characteristics:**
+
 - From student organizations, campus events
 - Keywords: meeting, event, party, join us, RSVP, free food
 - Casual, invitational tone
 
 **Examples:**
+
 - "Applied AI club meeting this Thursday"
 - "Homecoming game watch party - free pizza!"
 - "Join us for the career fair"
@@ -69,15 +84,18 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 ---
 
 ### 5. PROMOTIONAL 📢
+
 **Description:** Marketing emails, newsletters, announcements, and advertisements.
 
 **Characteristics:**
+
 - Bulk/mass email formatting
 - Marketing language ("limited time", "don't miss out", "subscribe")
 - From external organizations or campus marketing departments
 - Contains unsubscribe links
 
 **Examples:**
+
 - "Student discount: 20% off textbooks"
 - "Weekly campus newsletter"
 - "Amazon Prime Student - Free 6 months"
@@ -85,15 +103,18 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 ---
 
 ### 6. OTHER 📦
+
 **Description:** Catch-all for emails that don't fit above categories.
 
 **Characteristics:**
+
 - Ambiguous content
 - Low confidence in other categories
 - Personal emails
 - Automated notifications
 
 **Examples:**
+
 - "Package delivery notification"
 - "Password reset confirmation"
 - Personal correspondence
@@ -102,9 +123,11 @@ This document defines how emails are classified using Azure AI Foundry with Azur
 
 ## Azure AI Foundry / OpenAI Configuration
 
-This project uses Azure AI Foundry with a connected Azure OpenAI Service for enhanced monitoring, evaluation, and management capabilities.
+This project uses Azure AI Foundry with a connected Azure OpenAI Service for
+enhanced monitoring, evaluation, and management capabilities.
 
 ### Model Selection
+
 ```python
 # Using Azure OpenAI deployment via AI Foundry
 DEPLOYMENT_NAME = "gpt-4o-mini"  # Cost-effective, fast, good accuracy
@@ -112,6 +135,7 @@ DEPLOYMENT_NAME = "gpt-4o-mini"  # Cost-effective, fast, good accuracy
 ```
 
 ### Parameters
+
 ```python
 {
     "model": "gpt-4o-mini",  # Deployment name in Azure OpenAI
@@ -122,6 +146,7 @@ DEPLOYMENT_NAME = "gpt-4o-mini"  # Cost-effective, fast, good accuracy
 ```
 
 **Why these settings:**
+
 - **Temperature 0.3:** Reduces randomness, ensures consistent categorization
 - **max_tokens 200:** Sufficient for category + confidence + reasoning
 - **JSON mode:** Guarantees parseable response
@@ -131,9 +156,11 @@ DEPLOYMENT_NAME = "gpt-4o-mini"  # Cost-effective, fast, good accuracy
 ## Prompt Template
 
 ### System Prompt
-```
-You are an email classification assistant for university students at the University of Iowa. 
-Your job is to categorize emails to help students organize their inbox efficiently.
+
+```text
+You are an email classification assistant for university students at the
+University of Iowa. Your job is to categorize emails to help students
+organize their inbox efficiently.
 
 Classify each email into exactly ONE of these categories:
 - URGENT: Time-sensitive, requires immediate action, has deadlines
@@ -158,7 +185,8 @@ Respond ONLY with valid JSON in this exact format:
 ```
 
 ### User Prompt (Per Email)
-```
+
+```text
 Classify this email:
 
 From: {from_address}
@@ -169,6 +197,7 @@ Received: {received_datetime}
 ```
 
 **Input Processing:**
+
 - `body_preview`: First 500 characters of email body
 - Strip HTML tags: `<p>`, `<div>`, etc.
 - Remove excessive whitespace and newlines
@@ -179,6 +208,7 @@ Received: {received_datetime}
 ## Implementation Details
 
 ### Function Signature
+
 ```python
 def classify_email(
     subject: str,
@@ -200,6 +230,7 @@ def classify_email(
 ```
 
 ### Error Handling
+
 ```python
 # If Azure OpenAI API fails
 {
@@ -217,7 +248,9 @@ def classify_email(
 ```
 
 ### Fallback Rules (No AI Available)
+
 Simple keyword matching as backup:
+
 ```python
 FALLBACK_KEYWORDS = {
     "URGENT": ["urgent", "asap", "due today", "deadline", "immediately"],
@@ -233,6 +266,7 @@ FALLBACK_KEYWORDS = {
 ## Cost Estimation (POC)
 
 ### Azure OpenAI Pricing (gpt-4o-mini)
+
 - Hosted on Azure AI Foundry with Azure OpenAI Service
 - Input: $0.15 / 1M tokens
 - Output: $0.60 / 1M tokens
@@ -240,10 +274,12 @@ FALLBACK_KEYWORDS = {
 - Same pricing as direct Azure OpenAI (no AI Foundry premium)
 
 ### Per Email Cost
+
 - Average email: ~300 tokens input, ~50 tokens output
 - Cost per email: **~$0.00006** (less than 1 cent per 100 emails)
 
 ### POC Budget
+
 - 1,000 emails classified: **~$0.06**
 - 10,000 emails: **~$0.60**
 
@@ -254,6 +290,7 @@ FALLBACK_KEYWORDS = {
 ## Extensibility for Future Phases
 
 ### User-Defined Categories (Phase 2)
+
 ```python
 def classify_email(
     subject: str,
@@ -267,6 +304,7 @@ def classify_email(
 ```
 
 ### AI-Suggested Categories (Phase 3)
+
 ```python
 def analyze_inbox_patterns(emails: list[dict]) -> list[str]:
     """
@@ -281,6 +319,7 @@ def analyze_inbox_patterns(emails: list[dict]) -> list[str]:
 ## Testing Strategy
 
 ### Test Cases
+
 1. **Clear categorization** - Obvious category assignments
 2. **Edge cases** - Ambiguous emails, multiple potential categories
 3. **Spam/promotional** - Ensure marketing emails don't leak into other categories
@@ -288,6 +327,7 @@ def analyze_inbox_patterns(emails: list[dict]) -> list[str]:
 5. **Sender domain** - @uiowa.edu emails correctly categorized
 
 ### Sample Test Emails
+
 ```python
 TEST_EMAILS = [
     {
@@ -313,11 +353,13 @@ TEST_EMAILS = [
 ## Performance Metrics
 
 ### Target Accuracy (POC)
+
 - **>85%** correct categorization on test set
 - **<5%** "OTHER" category usage (indicates good category coverage)
 - **>0.7** average confidence score
 
 ### Monitoring
+
 - Log all classifications with confidence scores
 - Track category distribution over time
 - Flag low-confidence classifications for manual review
@@ -326,9 +368,11 @@ TEST_EMAILS = [
 
 ## Outlook Category Assignment
 
-### Overview
+### Category Overview
 
-After classification, emails are automatically tagged with Outlook category labels using Microsoft Graph API. Categories appear as colored tags in Outlook desktop, web, and mobile.
+After classification, emails are automatically tagged with Outlook category
+labels using Microsoft Graph API. Categories appear as colored tags in
+Outlook desktop, web, and mobile.
 
 ### Implementation
 
@@ -336,12 +380,14 @@ After classification, emails are automatically tagged with Outlook category labe
 **Location:** `src/graph.py`
 
 **Process:**
+
 1. GET current categories from email (`/me/messages/{id}?$select=categories`)
 2. Add new category to existing list (preserves user-defined categories)
 3. PATCH email with updated categories array
 4. Outlook automatically creates category if it doesn't exist
 
 **Example:**
+
 ```python
 from src.graph import assign_category_to_message
 
@@ -362,13 +408,15 @@ success = await assign_category_to_message(
 ### API Calls
 
 **GET categories:**
-```http
+
+```text
 GET https://graph.microsoft.com/v1.0/me/messages/{id}
     ?$select=categories
 Authorization: Bearer {access_token}
 ```
 
 **Response:**
+
 ```json
 {
   "categories": ["Blue Category", "Important"]
@@ -376,7 +424,8 @@ Authorization: Bearer {access_token}
 ```
 
 **PATCH categories:**
-```http
+
+```text
 PATCH https://graph.microsoft.com/v1.0/me/messages/{id}
 Content-Type: application/json
 Authorization: Bearer {access_token}
@@ -393,6 +442,7 @@ Authorization: Bearer {access_token}
 Users can customize category colors in Outlook:
 
 **Suggested Colors:**
+
 - **URGENT** → Red 🔴
 - **ACADEMIC** → Blue 🔵
 - **ADMINISTRATIVE** → Orange 🟠
@@ -401,22 +451,26 @@ Users can customize category colors in Outlook:
 - **OTHER** → Gray ⚪
 
 **How to customize (Outlook Web):**
+
 1. Settings (gear icon) → View all Outlook settings
 2. General → Categories
 3. Select category → Choose color
 
 **How to customize (Outlook Desktop):**
+
 1. Home tab → Categorize → All Categories
 2. Select category → Color dropdown
 3. Rename if desired (e.g., "🔴 URGENT")
 
-### Error Handling
+### Category Error Handling
 
-- **If category assignment fails:** Email is still marked as processed (classification succeeds)
+- **If category assignment fails:** Email is still marked as processed
+  (classification succeeds)
 - **Error logged:** Server logs the failure but continues processing other emails
 - **Graceful degradation:** Users can still see classifications in `/debug/processed`
 
 **Common Errors:**
+
 - `401 Unauthorized`: Token expired or missing Mail.ReadWrite scope
 - `403 Forbidden`: Insufficient permissions
 - `404 Not Found`: Invalid message_id
@@ -428,6 +482,7 @@ Users can customize category colors in Outlook:
 - **Batch of 10 emails:** ~20s (sequential processing)
 
 **Future Optimization:**
+
 - Batch PATCH requests (if Graph API supports)
 - Queue category assignments for async processing
 - Cache category state to avoid redundant GETs

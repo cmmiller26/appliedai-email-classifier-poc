@@ -2,7 +2,7 @@
 
 ## High-Level Overview
 
-```
+```text
 ┌─────────────┐
 │   Browser   │
 │   (User)    │
@@ -52,12 +52,14 @@
 ### 1. FastAPI Application (`src/main.py`)
 
 **Responsibilities:**
+
 - HTTP request handling
 - Route management
 - Session/token management (in-memory for POC)
 - Error handling and logging
 
 **Key Modules:**
+
 - `src/main.py` - Main application entry point
 - `src/graph.py` - Microsoft Graph API integration
 - `src/classifier.py` - Azure OpenAI classification logic
@@ -65,6 +67,7 @@
 - `templates/dashboard.html` - Web dashboard UI
 
 **Dependencies:**
+
 - `fastapi` - Web framework
 - `uvicorn` - ASGI server
 - `httpx` - HTTP client for API calls
@@ -74,7 +77,7 @@
 
 ### 2. Authentication Flow (OAuth 2.0)
 
-```
+```text
 User                Browser             FastAPI             Microsoft Entra ID
  │                    │                   │                       │
  │  Click "Login"     │                   │                       │
@@ -115,6 +118,7 @@ User                Browser             FastAPI             Microsoft Entra ID
 ```
 
 **Implementation Details:**
+
 ```python
 # MSAL Configuration
 from msal import ConfidentialClientApplication
@@ -136,7 +140,7 @@ user_tokens = {}  # {user_id: {access_token, refresh_token, expires_at}}
 
 ### 3. Email Fetching Flow
 
-```
+```text
 FastAPI              Graph API             Response
    │                    │                     │
    │  GET /graph/fetch  │                     │
@@ -162,7 +166,8 @@ FastAPI              Graph API             Response
 ```
 
 **Graph API Endpoint:**
-```
+
+```text
 GET https://graph.microsoft.com/v1.0/me/messages
     ?$top=10
     &$select=id,subject,from,receivedDateTime,bodyPreview,hasAttachments
@@ -170,6 +175,7 @@ GET https://graph.microsoft.com/v1.0/me/messages
 ```
 
 **Response Format:**
+
 ```json
 {
   "messages": [
@@ -194,7 +200,7 @@ GET https://graph.microsoft.com/v1.0/me/messages
 
 ### 4. Email Classification Flow
 
-```
+```text
 FastAPI         Classifier Module      OpenAI API       Response
    │                   │                    │              │
    │ POST /classify    │                    │              │
@@ -227,6 +233,7 @@ FastAPI         Classifier Module      OpenAI API       Response
 ```
 
 **Azure OpenAI Request (via AI Foundry):**
+
 ```python
 from openai import AzureOpenAI
 
@@ -253,7 +260,7 @@ response = client.chat.completions.create(
 
 ### 5. Automated Processing Flow
 
-```
+```text
 User              FastAPI           Graph API      Classifier      Storage
  │                  │                   │              │              │
  │ GET /inbox/      │                   │              │              │
@@ -288,6 +295,7 @@ User              FastAPI           Graph API      Classifier      Storage
 ```
 
 **Deduplication Logic:**
+
 ```python
 processed_emails = {}  # {internet_message_id: {...}}
 
@@ -306,10 +314,12 @@ def mark_processed(message_id: str, category: str, confidence: float):
 
 ### 6. Web Dashboard (`templates/dashboard.html`)
 
-The dashboard provides a web interface for monitoring and controlling the email classification system.
+The dashboard provides a web interface for monitoring and controlling the email
+classification system.
 
 **Architecture:**
-```
+
+```text
 Browser                FastAPI              Templates
    │                      │                     │
    │  GET /              │                     │
@@ -392,7 +402,11 @@ Browser                FastAPI              Templates
 CATEGORY_INFO = {
     "URGENT": {"emoji": "🔴", "description": "Time-sensitive", "color": "red"},
     "ACADEMIC": {"emoji": "📚", "description": "Class-related", "color": "blue"},
-    "ADMINISTRATIVE": {"emoji": "🏛️", "description": "University business", "color": "orange"},
+    "ADMINISTRATIVE": {
+        "emoji": "🏛️",
+        "description": "University business",
+        "color": "orange"
+    },
     "SOCIAL": {"emoji": "🎉", "description": "Events & clubs", "color": "green"},
     "PROMOTIONAL": {"emoji": "📢", "description": "Marketing", "color": "purple"},
     "OTHER": {"emoji": "📦", "description": "Everything else", "color": "gray"}
@@ -424,6 +438,7 @@ async def dashboard(request: Request):
 ```
 
 **Technologies:**
+
 - **Template Engine**: Jinja2 for server-side rendering
 - **Styling**: Tailwind CSS (loaded from CDN)
 - **JavaScript**: Vanilla JS for interactive features
@@ -432,6 +447,7 @@ async def dashboard(request: Request):
 - **Responsive Design**: Works on mobile, tablet, and desktop
 
 **File Location:**
+
 - Template: `templates/dashboard.html` (~350 lines)
 - Endpoint: `src/main.py:dashboard()` (lines 275-361)
 - Logout: `src/main.py:logout()` (lines 554-569)
@@ -440,10 +456,12 @@ async def dashboard(request: Request):
 
 ### 7. Background Scheduler (`src/scheduler.py`)
 
-The scheduler provides automatic email processing at configurable intervals using APScheduler.
+The scheduler provides automatic email processing at configurable intervals
+using APScheduler.
 
 **Architecture:**
-```
+
+```text
 ┌───────────────────────────────────────────────────────┐
 │              FastAPI Application                      │
 │                                                       │
@@ -474,14 +492,20 @@ The scheduler provides automatic email processing at configurable intervals usin
 ```
 
 **Key Features:**
-- **Auto-start**: Scheduler starts automatically on app startup (configurable via `SCHEDULER_AUTO_START`)
-- **Configurable interval**: 10-3600 seconds (default: 60s via `POLLING_INTERVAL`)
-- **Error handling**: Gracefully handles token expiration, API errors without crashing
-- **Idempotency**: Respects `internetMessageId` tracking - never processes same email twice
+
+- **Auto-start**: Scheduler starts automatically on app startup (configurable
+  via `SCHEDULER_AUTO_START`)
+- **Configurable interval**: 10-3600 seconds (default: 60s via
+  `POLLING_INTERVAL`)
+- **Error handling**: Gracefully handles token expiration, API errors without
+  crashing
+- **Idempotency**: Respects `internetMessageId` tracking - never processes
+  same email twice
 - **Status tracking**: Tracks last run time, next run time, and results
 - **Dynamic control**: Start/stop/reconfigure without restarting app
 
 **Scheduler Configuration:**
+
 ```python
 # Environment variables
 POLLING_INTERVAL=60           # Interval in seconds (default: 60)
@@ -489,6 +513,7 @@ SCHEDULER_AUTO_START=true     # Auto-start on app startup (default: true)
 ```
 
 **Error Handling Strategy:**
+
 ```python
 async def _job_wrapper():
     try:
@@ -503,6 +528,7 @@ async def _job_wrapper():
 ```
 
 **Integration with Main App:**
+
 ```python
 # Startup
 @app.on_event("startup")
@@ -523,11 +549,15 @@ async def shutdown_event():
 
 ### Overview
 
-This project uses **Azure AI Foundry** (formerly Azure AI Studio) as the centralized platform for AI operations. Azure AI Foundry provides a unified hub for managing Azure OpenAI deployments along with additional features like monitoring, evaluation, and Prompt Flow.
+This project uses **Azure AI Foundry** (formerly Azure AI Studio) as the
+centralized platform for AI operations. Azure AI Foundry provides a unified
+hub for managing Azure OpenAI deployments along with additional features like
+monitoring, evaluation, and Prompt Flow.
 
 ### Why Azure AI Foundry?
 
-Microsoft recommends Azure AI Foundry for building production AI applications because it provides:
+Microsoft recommends Azure AI Foundry for building production AI applications
+because it provides:
 
 1. **Unified Management**: Hub → Project → Resources hierarchy for better organization
 2. **Built-in Monitoring**: Track token usage, performance, latency, and costs
@@ -539,7 +569,7 @@ Microsoft recommends Azure AI Foundry for building production AI applications be
 
 ### Current Configuration
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │      Azure AI Foundry Hub               │
 │  (aih-appliedai-classifier-poc)         │
@@ -564,13 +594,15 @@ Microsoft recommends Azure AI Foundry for building production AI applications be
 ```
 
 **Resources:**
+
 - **Hub**: `aih-appliedai-classifier-poc` (North Central US)
 - **Project**: `aip-appliedai-classifier-poc`
 - **Model Deployment**: `gpt-4o-mini`
 
 ### Code Compatibility
 
-✅ **No code changes needed!** The existing `openai` Python SDK works seamlessly with AI Foundry.
+✅ **No code changes needed!** The existing `openai` Python SDK works
+seamlessly with AI Foundry.
 
 The Azure OpenAI endpoint provided by AI Foundry uses the same API format:
 
@@ -579,14 +611,15 @@ The Azure OpenAI endpoint provided by AI Foundry uses the same API format:
 client = AzureOpenAI(
     api_key=os.getenv("AZURE_OPENAI_KEY"),
     api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")  # Points to AI Foundry's OpenAI resource
+    # Points to AI Foundry's OpenAI resource
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
 )
 ```
 
 ### Benefits Over Direct Azure OpenAI
 
 | Feature | Direct Azure OpenAI | Azure AI Foundry |
-|---------|-------------------|------------------|
+| ------- | ------------------- | ---------------- |
 | Model Deployment | ✅ | ✅ |
 | Token Usage Tracking | Basic | Advanced with dashboards |
 | Evaluation Datasets | ❌ | ✅ Built-in |
@@ -599,29 +632,38 @@ client = AzureOpenAI(
 ### Future Enhancements (Phase 7-8)
 
 #### 1. Prompt Flow Integration
+
 Use visual designer to build and test classification pipelines without code.
 
 #### 2. Evaluation Datasets
+
 Create test sets to measure classification accuracy over time:
+
 - Upload labeled test emails
 - Run batch evaluations
 - Track accuracy metrics
 - Compare prompt variations
 
 #### 3. A/B Testing
+
 Compare different prompts or models to optimize performance:
+
 - Test multiple system prompts
 - Compare GPT-4o vs GPT-4o-mini
 - Measure accuracy and cost trade-offs
 
 #### 4. Content Safety
+
 Apply filters to detect inappropriate content in emails:
+
 - Profanity detection
 - Harassment identification
 - PII detection and redaction
 
 #### 5. Advanced Monitoring
+
 Set up alerts for:
+
 - High latency (>3s per classification)
 - Error rate spikes
 - Unusual token usage patterns
@@ -640,7 +682,7 @@ The application uses Azure App Registration (Microsoft Entra ID) for OAuth 2.0 a
 #### Configuration Details
 
 | Setting | Value |
-|---------|-------|
+| ------- | ----- |
 | Name | `app-appliedai-classifier-poc` |
 | Account Types | Single tenant (University of Iowa only) |
 | Redirect URI | `http://localhost:8000/auth/callback` (POC) |
@@ -649,14 +691,14 @@ The application uses Azure App Registration (Microsoft Entra ID) for OAuth 2.0 a
 #### API Permissions (Microsoft Graph)
 
 | Permission | Type | Purpose |
-|------------|------|---------|
+| ---------- | ---- | ------- |
 | `Mail.Read` | Delegated | Read user's email messages |
 | `Mail.ReadWrite` | Delegated | Assign Outlook categories to emails |
 | `offline_access` | Delegated | Refresh tokens for persistent access |
 
 #### OAuth 2.0 Flow
 
-```
+```text
 User → Login → Microsoft Entra ID → Authorization
                                     ↓
                               Code Exchange
@@ -669,7 +711,8 @@ User → Login → Microsoft Entra ID → Authorization
 ### Client Secret Management
 
 #### POC Strategy (Current)
-```
+
+```text
 Storage:      .env file (local, gitignored)
 Description:  poc-local-dev
 Expiration:   24 months
@@ -678,7 +721,8 @@ Access:       Single developer
 ```
 
 #### Production Strategy (Phase 8)
-```
+
+```text
 Storage:      Azure Key Vault
 Description:  prod-{environment}
 Expiration:   6 months (enforced)
@@ -708,6 +752,7 @@ Access:       App Service managed identity
 ## Data Models
 
 ### Token Storage
+
 ```python
 {
     "user_id": "demo_user",  # POC uses single user
@@ -718,6 +763,7 @@ Access:       App Service managed identity
 ```
 
 ### Processed Email Record (In-Memory Storage)
+
 ```python
 processed_emails = {
     "<CAB...@mail.gmail.com>": {  # Key: internetMessageId
@@ -733,6 +779,7 @@ last_check_time = datetime(2025, 10, 31, 12, 0, 0)  # Global variable
 ```
 
 ### Classification Result
+
 ```python
 {
     "category": "ACADEMIC",
@@ -747,7 +794,7 @@ last_check_time = datetime(2025, 10, 31, 12, 0, 0)  # Global variable
 
 ### Category Assignment Flow
 
-```
+```text
 FastAPI         Graph API             Outlook
    │                │                    │
    │ Classify email │                    │
@@ -778,17 +825,20 @@ FastAPI         Graph API             Outlook
 Located in: `src/graph.py`
 
 **Process:**
+
 1. GET current categories from email (preserves existing)
 2. Add new category if not already present
 3. PATCH email with updated categories array
 4. Outlook automatically creates category if doesn't exist
 
 **Requirements:**
+
 - OAuth scope: `Mail.ReadWrite` (required for PATCH operations)
 - message_id: Graph API message ID (not internetMessageId)
 - Category names are case-sensitive
 
 **Error Handling:**
+
 - If category assignment fails, email is still marked as processed
 - Logs error but continues processing other emails
 - Returns success=True/False
@@ -798,6 +848,7 @@ Located in: `src/graph.py`
 ## State Management (POC)
 
 ### Global State Variables
+
 ```python
 # In-memory storage (resets on server restart)
 user_tokens = {}              # OAuth tokens
@@ -809,19 +860,23 @@ last_check_time = None        # Timestamp of last email fetch
 
 The system uses a **two-layer deduplication** approach to prevent reprocessing:
 
-**Layer 1: In-Memory Tracking (Primary)**
+#### Layer 1: In-Memory Tracking (Primary)
+
 - Uses `processed_emails` dictionary with `internetMessageId` as key
 - Checks: `is_processed(message_id)` before classification
 - **Limitation:** Lost on server restart
 
-**Layer 2: Outlook Category Check (Fallback)**
+#### Layer 2: Outlook Category Check (Fallback)
+
 - Added in Phase 5.1 (2025-11-04) as optimization
 - Before classifying, checks if email already has a classification category
-- Categories checked: `URGENT`, `ACADEMIC`, `ADMINISTRATIVE`, `SOCIAL`, `PROMOTIONAL`, `OTHER`
+- Categories checked: `URGENT`, `ACADEMIC`, `ADMINISTRATIVE`, `SOCIAL`,
+  `PROMOTIONAL`, `OTHER`
 - **Benefit:** Prevents redundant Azure OpenAI API calls after server restart
 - **Implementation:** `src/main.py:982-996`, `src/graph.py:83`
 
 **How it works:**
+
 ```python
 # After server restart, processed_emails = {} (empty)
 # But Outlook categories persist!
@@ -836,10 +891,13 @@ for email in fetched_emails:
         classify_with_azure_openai(email)  # Only truly new emails
 ```
 
-**Result:** Server restarts no longer cause re-classification of already-categorized emails.
+**Result:** Server restarts no longer cause re-classification of
+already-categorized emails.
 
 ### Limitations (POC) - Phase 5 Complete (2025-10-31)
-- **Partial persistence:** In-memory state lost on restart, but Outlook categories provide fallback deduplication
+
+- **Partial persistence:** In-memory state lost on restart, but Outlook
+  categories provide fallback deduplication
 - **Single-user only:** One token per server instance
 - **No token refresh:** Must re-authenticate after expiry (~1 hour)
 - **Sequential processing:** Emails processed one at a time (~1.5-2.5s per email)
@@ -847,6 +905,7 @@ for email in fetched_emails:
 - **No retry logic:** Failed classifications are skipped
 
 ### Future: Production State (Phases 7-8)
+
 - **Database:** PostgreSQL, Azure SQL, or Azure Table Storage
 - **Cache:** Redis for session tokens and fast lookups
 - **Blob Storage:** Azure Blob for processed email metadata
@@ -856,9 +915,10 @@ for email in fetched_emails:
 
 ---
 
-## Security Considerations
+## Security Architecture
 
 ### POC Security (Minimal)
+
 - ✅ OAuth state parameter prevents CSRF
 - ✅ Tokens stored server-side (not in cookies)
 - ✅ HTTPS enforced in production
@@ -867,6 +927,7 @@ for email in fetched_emails:
 - ❌ No input validation on email content
 
 ### Production Security (Future)
+
 - Encrypt tokens at rest (Azure Key Vault)
 - Implement rate limiting
 - Add CORS policies
@@ -879,6 +940,7 @@ for email in fetched_emails:
 ## Scalability Considerations
 
 ### Current Limitations (Phase 5)
+
 - In-memory storage → Single server only
 - Sequential processing → One email at a time (~1.5-2.5s each)
 - No caching → Repeated API calls for category assignment
@@ -887,7 +949,9 @@ for email in fetched_emails:
 ### Future Improvements (Phases 7-8)
 
 #### 1. Parallel Processing with asyncio
+
 **Implementation:**
+
 ```python
 async def process_emails_parallel(emails, access_token, max_workers=5):
     semaphore = asyncio.Semaphore(max_workers)
@@ -904,24 +968,29 @@ async def process_emails_parallel(emails, access_token, max_workers=5):
 ```
 
 **Benefits:**
+
 - 5-10x speedup (10 emails in ~5s instead of ~20s)
 - Better resource utilization
 - Rate limit control with semaphore
 
 **Challenges:**
+
 - Azure OpenAI rate limits (need quota management)
 - Graph API throttling (429 responses)
 - Error handling for partial failures
 
 #### 2. Azure OpenAI Batch API
+
 **Use Case:** Overnight processing of 1000+ emails
 
 **Benefits:**
+
 - ~50% cost discount
 - No rate limit concerns
 - Process large backlogs efficiently
 
 **Implementation:**
+
 ```python
 # Submit batch job
 batch_job = await submit_batch_classification(emails)
@@ -937,7 +1006,8 @@ results = await get_batch_results(batch_job.id)
 
 #### 3. Persistent Storage Options
 
-**Option A: Azure SQL Database**
+##### Option A: Azure SQL Database
+
 ```sql
 CREATE TABLE processed_emails (
     internet_message_id VARCHAR(255) PRIMARY KEY,
@@ -953,12 +1023,14 @@ CREATE TABLE processed_emails (
 ```
 
 **Benefits:**
+
 - ACID guarantees
 - Complex queries for analytics
 - Familiar SQL interface
 - ~$5-10/month for basic tier
 
-**Option B: Azure Table Storage**
+##### Option B: Azure Table Storage
+
 ```python
 # PartitionKey: category, RowKey: internet_message_id
 table_client.upsert_entity({
@@ -971,12 +1043,14 @@ table_client.upsert_entity({
 ```
 
 **Benefits:**
+
 - Lower cost (~$1/month)
 - High throughput (thousands of ops/sec)
 - Simple key-value model
 - No schema management
 
-**Option C: Redis Cache**
+##### Option C: Redis Cache
+
 ```python
 redis_client.hset(
     "processed_emails",
@@ -990,25 +1064,30 @@ redis_client.hset(
 ```
 
 **Benefits:**
+
 - Sub-millisecond lookups
 - Pub/sub for real-time updates
 - TTL for auto-expiration
 - ~$10-20/month for basic tier
 
 #### 4. Horizontal Scaling
+
 - **Load balancer:** Azure Application Gateway
 - **Session state:** Move to Redis/SQL
 - **Stateless app servers:** Multiple FastAPI instances
 - **Message queue:** Azure Service Bus for background jobs
 
 #### 5. Caching Strategy
+
 - **Classification results:** Cache by email content hash (dedupe)
 - **Category assignments:** Cache recent assignments
 - **Graph API responses:** Cache user profile/folders
 - **TTL:** 1 hour for classifications, 24 hours for metadata
 
 #### 6. Webhooks Instead of Polling
+
 **Microsoft Graph Webhooks:**
+
 ```python
 # Subscribe to inbox changes
 subscription = await graph_client.subscriptions.post({
@@ -1020,6 +1099,7 @@ subscription = await graph_client.subscriptions.post({
 ```
 
 **Benefits:**
+
 - Real-time processing (no polling delay)
 - Lower API usage
 - Better user experience
@@ -1029,6 +1109,7 @@ subscription = await graph_client.subscriptions.post({
 ## Error Handling Strategy
 
 ### Error Types
+
 1. **Authentication Errors** (401, 403)
    - Redirect to `/auth/login`
    - Clear invalid tokens
@@ -1046,6 +1127,7 @@ subscription = await graph_client.subscriptions.post({
    - Return clear error message
 
 ### Logging
+
 ```python
 import logging
 
@@ -1061,7 +1143,7 @@ logger.error(f"Graph API error: {error}")
 
 ## Deployment Architecture (Future)
 
-```
+```text
 ┌─────────────────────────────────────────┐
 │         Azure App Service               │
 │                                         │
@@ -1095,13 +1177,13 @@ logger.error(f"Graph API error: {error}")
 ## Technology Stack Summary
 
 | Layer | Technology | Purpose |
-|-------|-----------|---------|
+| ----- | ---------- | ------- |
 | **Web Framework** | FastAPI | HTTP endpoints, routing |
 | **ASGI Server** | Uvicorn + Gunicorn | Production server |
 | **Authentication** | MSAL Python | OAuth 2.0 flows |
 | **HTTP Client** | httpx | Graph API calls |
-| **AI Platform** | Azure AI Foundry | Centralized AI management, monitoring, evaluation |
-| **AI Model** | Azure OpenAI Service (GPT-4o-mini) | Email classification via AI Foundry |
+| **AI Platform** | Azure AI Foundry | AI management, monitoring |
+| **AI Model** | Azure OpenAI (GPT-4o-mini) | Email classification |
 | **Templates** | Jinja2 | HTML rendering |
 | **Configuration** | python-dotenv | Environment variables |
 | **Hosting** | Azure App Service | Cloud deployment (future) |
@@ -1111,16 +1193,19 @@ logger.error(f"Graph API error: {error}")
 ## Testing Strategy
 
 ### Unit Tests
+
 - `classifier.py` → Test prompt generation, response parsing
 - `graph.py` → Mock Graph API responses
 - Input sanitization functions
 
 ### Integration Tests
+
 - OAuth flow (end-to-end)
 - Graph API → Classify → Store pipeline
 - Error handling (token expiry, API failures)
 
 ### Manual Testing
+
 - Browser-based auth flow
 - Dashboard functionality
 - Edge cases (empty inbox, network failures)
@@ -1132,7 +1217,7 @@ logger.error(f"Graph API error: {error}")
 ### Current Performance (Phase 5 - Sequential)
 
 | Metric | Current | Notes |
-|--------|---------|-------|
+| ------ | ------- | ----- |
 | Auth flow latency | ~2-3s | Microsoft sign-in |
 | Email fetch | <1s | 50 emails from Graph API |
 | Single classification | 1-2s | Azure OpenAI Service call |
@@ -1145,11 +1230,11 @@ logger.error(f"Graph API error: {error}")
 ### Future Performance (Phase 7 - Parallel)
 
 | Metric | Target | Improvement | Implementation |
-|--------|--------|-------------|----------------|
+| ------ | ------ | ----------- | -------------- |
 | Batch processing (10 emails) | ~5s | 4x faster | asyncio with 5 workers |
 | Batch processing (50 emails) | ~25s | 5x faster | asyncio with 10 workers |
-| Batch processing (100 emails) | ~50s | 4x faster | asyncio with 10 workers + rate limiting |
-| Overnight batch (1000+ emails) | N/A | Cost efficient | Azure OpenAI Batch API |
+| Batch (100 emails) | ~50s | 4x faster | asyncio + rate limiting |
+| Overnight batch (1000+ emails) | N/A | Cost efficient | Azure OpenAI Batch |
 | Database lookup | <10ms | Fast idempotency check | Redis or indexed SQL |
 
 ### Bottlenecks and Optimization Opportunities
@@ -1175,16 +1260,19 @@ logger.error(f"Graph API error: {error}")
 ## Future Architecture Enhancements
 
 ### Phase 2: Multi-User Support
+
 - Session management (Flask-Login or FastAPI-Users)
 - User database (PostgreSQL)
 - Per-user category customization
 
 ### Phase 3: Real-Time Processing
+
 - Microsoft Graph webhooks
 - Background job queue (Celery + Redis)
 - Push notifications to users
 
 ### Phase 4: Advanced Features
+
 - Machine learning model training on user feedback
 - Multi-label classification
 - Smart folder auto-creation in Outlook
@@ -1194,7 +1282,7 @@ logger.error(f"Graph API error: {error}")
 
 ## Documentation Map
 
-```
+```text
 docs/
 ├── API_SPEC.md           ← Endpoint definitions
 ├── CLASSIFICATION_SPEC.md ← AI logic and categories
@@ -1214,7 +1302,8 @@ User → Login URL → Microsoft Sign-In → Callback with code → Exchange for
 RESTful API for accessing Microsoft 365 data (emails, calendar, etc.)
 
 **Azure AI Foundry Classification:**
-Few-shot learning with GPT-4o-mini to categorize emails based on content, hosted on Azure AI Foundry with Azure OpenAI Service
+Few-shot learning with GPT-4o-mini to categorize emails based on content,
+hosted on Azure AI Foundry with Azure OpenAI Service
 
 **Idempotency:**
 Ensuring same email is not processed multiple times using `internetMessageId`

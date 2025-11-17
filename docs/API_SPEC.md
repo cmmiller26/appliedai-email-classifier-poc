@@ -1,6 +1,7 @@
 # API Specification - Email Sorting POC
 
 ## Base URL
+
 - Local: `http://localhost:8000`
 - Production: `https://appliedai-api.azurewebsites.net` (future)
 
@@ -13,6 +14,7 @@
 Returns service status.
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -30,12 +32,15 @@ Returns service status.
 Initiates OAuth 2.0 Authorization Code flow with Microsoft Entra ID.
 
 **Query Parameters:**
+
 - None (state is generated server-side)
 
 **Response:**
+
 - `302 Redirect` to Microsoft sign-in page
 
 **Scopes Requested:**
+
 - `Mail.Read` - Read user's email
 - `Mail.ReadWrite` - Move emails between folders (future)
 - `offline_access` - Refresh token for persistent access
@@ -47,16 +52,19 @@ Initiates OAuth 2.0 Authorization Code flow with Microsoft Entra ID.
 OAuth callback endpoint. Microsoft redirects here after user authorization.
 
 **Query Parameters:**
+
 - `code` (string, required) - Authorization code from Microsoft
 - `state` (string, required) - CSRF protection token
 - `error` (string, optional) - Error code if authorization failed
 - `error_description` (string, optional) - Human-readable error
 
 **Success Response:**
+
 - `302 Redirect` to `/` (dashboard)
 - Token stored in server memory
 
 **Error Response:**
+
 - `400 Bad Request` with error details
 
 ---
@@ -68,10 +76,12 @@ OAuth callback endpoint. Microsoft redirects here after user authorization.
 Fetches emails from Microsoft Graph API using stored access token.
 
 **Query Parameters:**
+
 - `top` (integer, optional, default=10) - Number of emails to fetch (max 50)
 - `skip` (integer, optional, default=0) - Pagination offset
 
 **Response:**
+
 ```json
 {
   "messages": [
@@ -95,6 +105,7 @@ Fetches emails from Microsoft Graph API using stored access token.
 ```
 
 **Error Responses:**
+
 - `401 Unauthorized` - No valid token stored (redirect to `/auth/login`)
 - `500 Internal Server Error` - Graph API failure
 
@@ -107,20 +118,30 @@ Fetches emails from Microsoft Graph API using stored access token.
 Classifies a single email using Azure OpenAI via Azure AI Foundry.
 
 **Request Body:**
+
 ```json
 {
   "subject": "CS 4980 Assignment Due Friday",
   "body": "Your programming assignment is due this Friday at 11:59 PM...",
   "from": "john-smith@uiowa.edu",
-  "categories": ["URGENT", "ACADEMIC", "ADMINISTRATIVE", "SOCIAL", "PROMOTIONAL", "OTHER"]
+  "categories": [
+    "URGENT",
+    "ACADEMIC",
+    "ADMINISTRATIVE",
+    "SOCIAL",
+    "PROMOTIONAL",
+    "OTHER"
+  ]
 }
 ```
 
 **Notes:**
+
 - `categories` is optional - defaults to preset categories
 - `body` can be full body or preview (first 500 chars recommended)
 
 **Response:**
+
 ```json
 {
   "category": "ACADEMIC",
@@ -130,6 +151,7 @@ Classifies a single email using Azure OpenAI via Azure AI Foundry.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Missing required fields
 - `500 Internal Server Error` - Azure OpenAI API failure
 
@@ -139,18 +161,23 @@ Classifies a single email using Azure OpenAI via Azure AI Foundry.
 
 **POST** `/inbox/process-new`
 
-Fetches unprocessed emails (received since last check), classifies them using Azure OpenAI via Azure AI Foundry, assigns Outlook categories, and stores results.
+Fetches unprocessed emails (received since last check), classifies them using
+Azure OpenAI via Azure AI Foundry, assigns Outlook categories, and stores
+results.
 
 **Features:**
+
 - Ensures idempotency using `internetMessageId` (same email never processed twice)
 - Automatically assigns Outlook category labels to emails
 - Tracks `last_check_time` to only process new emails on subsequent runs
 - Processes up to 50 emails per batch
 
 **Query Parameters:**
+
 - None (uses stored timestamp of last processing)
 
 **Response:**
+
 ```json
 {
   "processed": 5,
@@ -174,22 +201,27 @@ Fetches unprocessed emails (received since last check), classifies them using Az
 ```
 
 **Idempotency Behavior:**
+
 - First run: Processes all emails in inbox (up to 50)
 - Subsequent runs: Only processes emails received after `lastCheck`
 - Already-processed emails are skipped (even if received after `lastCheck`)
-- **Optimization (Phase 5.1):** Emails with existing classification categories are skipped automatically
+- **Optimization (Phase 5.1):** Emails with existing classification categories
+  are skipped automatically
   - Prevents redundant Azure OpenAI API calls after server restart
-  - Checks Outlook categories: `URGENT`, `ACADEMIC`, `ADMINISTRATIVE`, `SOCIAL`, `PROMOTIONAL`, `OTHER`
+  - Checks Outlook categories: `URGENT`, `ACADEMIC`, `ADMINISTRATIVE`,
+    `SOCIAL`, `PROMOTIONAL`, `OTHER`
   - If found, marks as processed without re-classification
   - Logs: `"Email <id>... already has category ['URGENT'], skipping classification"`
 - Safe to call multiple times
 
 **Outlook Category Assignment:**
+
 - Each classified email automatically gets an Outlook category label
 - Categories appear as colored tags in Outlook desktop, web, and mobile
 - If category assignment fails, email is still marked as processed
 
 **Error Responses:**
+
 - `401 Unauthorized` - No valid token
 - `500 Internal Server Error` - Processing failure
 
@@ -202,12 +234,14 @@ Fetches unprocessed emails (received since last check), classifies them using Az
 Starts the background email processing scheduler.
 
 **Query Parameters:**
+
 - `interval` (integer, optional) - Polling interval in seconds (10-3600)
   - If not provided, uses `POLLING_INTERVAL` from environment (default: 60)
   - Minimum: 10 seconds
   - Maximum: 3600 seconds (1 hour)
 
 **Response:**
+
 ```json
 {
   "message": "Scheduler started successfully",
@@ -217,10 +251,12 @@ Starts the background email processing scheduler.
 ```
 
 **Error Responses:**
+
 - `400 Bad Request` - Invalid interval (< 10 or > 3600)
 - `500 Internal Server Error` - Scheduler initialization failed
 
 **Notes:**
+
 - Scheduler automatically calls `/inbox/process-new` logic at specified interval
 - Can be called while scheduler is already running to change interval
 - Respects idempotency - won't reprocess same emails
@@ -232,9 +268,11 @@ Starts the background email processing scheduler.
 Stops the background email processing scheduler.
 
 **Query Parameters:**
+
 - None
 
 **Response:**
+
 ```json
 {
   "message": "Scheduler stopped successfully",
@@ -243,6 +281,7 @@ Stops the background email processing scheduler.
 ```
 
 **Notes:**
+
 - Scheduler can be restarted later with `/scheduler/start`
 - No emails will be processed automatically while stopped
 - Manual `/inbox/process-new` endpoint still works
@@ -254,9 +293,11 @@ Stops the background email processing scheduler.
 Gets current scheduler status and statistics.
 
 **Query Parameters:**
+
 - None
 
 **Response:**
+
 ```json
 {
   "running": true,
@@ -275,6 +316,7 @@ Gets current scheduler status and statistics.
 ```
 
 **Fields:**
+
 - `running` (boolean) - Whether scheduler is currently active
 - `interval_seconds` (integer|null) - Current polling interval
 - `next_run` (string|null) - ISO 8601 timestamp of next scheduled run
@@ -282,6 +324,7 @@ Gets current scheduler status and statistics.
 - `last_run_result` (object|null) - Results from last processing run
 
 **Notes:**
+
 - Returns status even if scheduler is stopped
 - `last_run_result` includes error details if last run failed
 
@@ -294,9 +337,11 @@ Gets current scheduler status and statistics.
 Returns all processed emails with their classifications (debug endpoint).
 
 **Query Parameters:**
+
 - None
 
 **Response:**
+
 ```json
 {
   "count": 10,
@@ -315,6 +360,7 @@ Returns all processed emails with their classifications (debug endpoint).
 ```
 
 **Notes:**
+
 - For development/debugging only
 - Shows all emails processed since server start
 - In-memory storage (cleared on server restart)
@@ -328,6 +374,7 @@ Returns all processed emails with their classifications (debug endpoint).
 Triggers batch classification of all existing emails in inbox. Long-running operation.
 
 **Request Body:**
+
 ```json
 {
   "maxEmails": 100
@@ -335,6 +382,7 @@ Triggers batch classification of all existing emails in inbox. Long-running oper
 ```
 
 **Response:**
+
 ```json
 {
   "jobId": "uuid-here",
@@ -368,6 +416,7 @@ Triggers batch classification of all existing emails in inbox. Long-running oper
 Interactive web dashboard displaying email classification statistics and results.
 
 **Response:**
+
 - HTML page with:
   - **Not Authenticated View:**
     - Login screen with "Sign In with Microsoft" button
@@ -396,12 +445,14 @@ Interactive web dashboard displaying email classification statistics and results
       - Clears token and returns to login screen
 
 **Features:**
+
 - Responsive design using Tailwind CSS
 - Real-time stats updated on page load
 - JavaScript-driven process button with feedback
 - Optional auto-refresh for monitoring
 
 **Technologies:**
+
 - Jinja2 templates for server-side rendering
 - Tailwind CSS (CDN) for styling
 - Vanilla JavaScript for interactivity
@@ -413,10 +464,12 @@ Interactive web dashboard displaying email classification statistics and results
 Logout endpoint that clears user token and redirects to dashboard.
 
 **Response:**
+
 - `302 Redirect` to `/` (dashboard)
 - Token removed from server memory
 
 **Notes:**
+
 - After logout, dashboard shows login screen
 - Safe to call even if not authenticated
 
@@ -429,6 +482,7 @@ Logout endpoint that clears user token and redirects to dashboard.
 The API uses OAuth 2.0 with Azure App Registration for authentication.
 
 **App Registration Details:**
+
 - Name: `app-appliedai-classifier-poc`
 - Tenant: Single tenant (University of Iowa)
 - Client Secret: `poc-local-dev` (24-month expiration)
@@ -436,7 +490,9 @@ The API uses OAuth 2.0 with Azure App Registration for authentication.
 ### Token Management
 
 #### Token Storage (POC)
+
 Tokens are stored in server memory:
+
 ```python
 user_tokens = {
     "demo_user": {
@@ -448,6 +504,7 @@ user_tokens = {
 ```
 
 #### Token Expiration
+
 - Access tokens expire after **~1 hour**
 - Refresh tokens valid for **90 days**
 - POC: Manual re-authentication when expired
@@ -456,17 +513,19 @@ user_tokens = {
 ### API Scopes
 
 | Scope | Purpose | Required |
-|-------|---------|----------|
+| ----- | ------- | -------- |
 | `Mail.Read` | Read user's emails | Yes |
 | `Mail.ReadWrite` | Assign Outlook categories | Yes |
 | `offline_access` | Refresh token support | Yes |
 
 ### Token Refresh
+
 - Not implemented in POC
 - On 401 from Graph API, redirect to `/auth/login`
 - Phase 8 will implement automatic refresh using refresh_token
 
 ### Security Notes
+
 - State parameter validates OAuth callback (CSRF protection)
 - No session management in POC (single-user demo)
 - HTTPS required in production
@@ -478,6 +537,7 @@ user_tokens = {
 ## Rate Limiting (Future)
 
 Not implemented in POC. Future considerations:
+
 - Azure OpenAI: Varies by deployment tier and quota
 - Graph API: Varies by license
 - Implement retry with exponential backoff
@@ -498,6 +558,7 @@ All endpoints return errors in consistent format:
 ```
 
 HTTP Status Codes:
+
 - `200 OK` - Success
 - `400 Bad Request` - Invalid input
 - `401 Unauthorized` - Authentication required

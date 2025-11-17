@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document outlines security best practices for the AppliedAI Email Classifier POC, focusing on client secret management, OAuth security, data protection, and compliance requirements.
+This document outlines security best practices for the AppliedAI Email
+Classifier POC, focusing on client secret management, OAuth security, data
+protection, and compliance requirements.
 
 ---
 
@@ -46,7 +48,8 @@ git status  # Should NOT show .env
   - Screenshots or text files in shared locations
 
 **When Creating Secret:**
-```
+
+```text
 1. Azure Portal → App Registration → Certificates & secrets
 2. New client secret
 3. Description: "poc-local-dev"
@@ -68,6 +71,7 @@ git status  # Should NOT show .env
   5. Update calendar reminder for new secret
 
 **Rotation Checklist:**
+
 - [ ] Create new client secret in Azure Portal
 - [ ] Update `CLIENT_SECRET` in `.env`
 - [ ] Restart application
@@ -101,6 +105,7 @@ ls -l .env  # Should show: -rw-------
 ### Azure Key Vault Integration
 
 **Why Key Vault?**
+
 - ✅ No secrets in application code or config files
 - ✅ Automatic rotation with Azure Functions
 - ✅ Audit logging (who accessed what, when)
@@ -188,6 +193,7 @@ def rotate_client_secret(timer):
 #### Implemented Security Measures
 
 1. **State Parameter** - Prevents CSRF attacks
+
    ```python
    state = secrets.token_urlsafe(32)  # 256-bit random token
    auth_state_store[state] = time.time()
@@ -200,6 +206,7 @@ def rotate_client_secret(timer):
    - No multi-tenant applications
 
 3. **Server-Side Token Storage** - Not in cookies or localStorage
+
    ```python
    # Tokens stored in server memory, never sent to client
    user_tokens["demo_user"] = {
@@ -276,6 +283,7 @@ The University of Iowa IT-15 policy mandates:
 #### POC (Test Data Only)
 
 **Current State:**
+
 - Using `appliedai.demo@outlook.com` (no real student data)
 - In-memory processing only (no persistent storage)
 - Data cleared on server restart
@@ -295,6 +303,7 @@ The Family Educational Rights and Privacy Act (FERPA) requires:
    - Purge processed emails after 30 days
 
 2. **Encrypt Data at Rest**
+
    ```sql
    -- Azure SQL Database with Transparent Data Encryption (TDE)
    -- Automatically enabled for all Azure SQL databases
@@ -377,7 +386,7 @@ class SecureEmailStorage:
    - Check for data exfiltration attempts
 
 5. **Report to IT Security** if institutional data exposed
-   - Email: security@uiowa.edu
+   - Email: <security@uiowa.edu>
    - Include: timeline, scope, actions taken
    - Follow University incident response procedures
 
@@ -432,7 +441,7 @@ class SecureEmailStorage:
    - FERPA-protected data involved?
 
 3. **Notify stakeholders**
-   - IT Security: security@uiowa.edu
+   - IT Security: <security@uiowa.edu>
    - University Counsel if FERPA data
    - Affected users within 72 hours (GDPR/FERPA requirement)
 
@@ -531,16 +540,19 @@ Configure alerts for:
 ### Response Procedures
 
 **High Priority (Respond within 1 hour):**
+
 - Authentication failures
 - Data breach indicators
 - Service outages
 
 **Medium Priority (Respond within 4 hours):**
+
 - Cost anomalies
 - Performance degradation
 - Non-critical errors
 
 **Low Priority (Respond within 24 hours):**
+
 - Configuration warnings
 - Deprecation notices
 - Maintenance reminders
@@ -571,9 +583,9 @@ Configure alerts for:
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2025-11-04 | Initial security documentation for POC |
+| Version | Date       | Changes                                |
+| ------- | ---------- | -------------------------------------- |
+| 1.0     | 2025-11-04 | Initial security documentation for POC |
 
 ---
 
@@ -581,6 +593,6 @@ Configure alerts for:
 
 For security concerns or incidents:
 
-- **University IT Security**: security@uiowa.edu
+- **University IT Security**: <security@uiowa.edu>
 - **University IT Helpdesk**: (319) 384-4357
 - **Emergency**: Call IT Security immediately if data breach suspected

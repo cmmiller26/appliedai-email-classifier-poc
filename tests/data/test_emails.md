@@ -3,10 +3,11 @@
 ## Category: URGENT 🔴
 
 ### Email 1: Assignment Deadline
+
 **From:** Professor John Smith <john-smith@uiowa.edu>
 **Subject:** CS 4980 Assignment Due Tonight at 11:59 PM
 **Body:**
-This is a reminder that your machine learning assignment is due tonight at 11:59 PM. 
+This is a reminder that your machine learning assignment is due tonight at 11:59 PM.
 
 Please submit via Canvas. Late submissions will receive a 10% penalty per day.
 
@@ -18,6 +19,7 @@ Prof. Smith
 ---
 
 ### Email 2: Registration Deadline
+
 **From:** Office of the Registrar <registrar@uiowa.edu>
 **Subject:** ACTION REQUIRED: Spring 2026 Registration Closes Tomorrow
 **Body:**
@@ -33,6 +35,7 @@ The University of Iowa
 ---
 
 ### Email 3: Urgent Meeting Change
+
 **From:** Dr. Sarah Johnson <sarah-johnson@uiowa.edu>
 **Subject:** URGENT: Final Exam Location Changed - Confirm ASAP
 **Body:**
@@ -50,6 +53,7 @@ Dr. Johnson
 ## Category: ACADEMIC 📚
 
 ### Email 1: Lecture Notes Posted
+
 **From:** CS 4980 Teaching Staff <cs4980-staff@uiowa.edu>
 **Subject:** CS 4980: Week 8 Lecture Notes and Lab Materials Posted
 **Body:**
@@ -58,6 +62,7 @@ Hello CS 4980 Students,
 This week's lecture notes covering neural networks and deep learning are now available on Canvas.
 
 Also posted:
+
 - Lab 8 assignment (due next Friday)
 - Reading materials for next week
 - Solution to Quiz 7
@@ -70,6 +75,7 @@ TA Team
 ---
 
 ### Email 2: Grade Posted
+
 **From:** MATH 2850 Course <math2850@uiowa.edu>
 **Subject:** Your Midterm Grade is Available
 **Body:**
@@ -85,6 +91,7 @@ Prof. Anderson will hold extra review sessions next week before the final.
 ---
 
 ### Email 3: Office Hours Change
+
 **From:** Teaching Assistant <emily-chen@uiowa.edu>
 **Subject:** TA Office Hours Rescheduled This Week
 **Body:**
@@ -105,6 +112,7 @@ TA - STAT 3200
 ## Category: ADMINISTRATIVE 🏛️
 
 ### Email 1: Financial Aid Form
+
 **From:** Financial Aid Office <financial-aid@uiowa.edu>
 **Subject:** Complete Your 2025-26 FAFSA - Required for Aid Eligibility
 **Body:**
@@ -113,6 +121,7 @@ Dear Student,
 To be considered for financial aid for the 2025-26 academic year, you must complete your FAFSA by March 1, 2026.
 
 Steps to complete:
+
 1. Visit studentaid.gov
 2. Use University of Iowa school code: 001892
 3. Submit by the deadline
@@ -124,6 +133,7 @@ University of Iowa Financial Aid Office
 ---
 
 ### Email 2: Housing Application
+
 **From:** University Housing <housing@uiowa.edu>
 **Subject:** Fall 2026 Housing Application Now Open
 **Body:**
@@ -133,6 +143,7 @@ Application deadline: February 15, 2026
 $200 housing deposit required
 
 Log in to the Housing Portal to:
+
 - Select room preferences
 - Choose meal plans
 - Submit roommate requests
@@ -144,12 +155,14 @@ UI Housing & Dining
 ---
 
 ### Email 3: Policy Update
+
 **From:** Student Services <student-services@uiowa.edu>
 **Subject:** Updated Campus COVID-19 Testing Policy
 **Body:**
 The University has updated its COVID-19 testing policy effective November 1, 2025.
 
 Key changes:
+
 - Testing available at Student Health Monday-Friday
 - Insurance accepted
 - No appointment necessary
@@ -163,6 +176,7 @@ Student Health Service
 ## Category: SOCIAL 🎉
 
 ### Email 1: Club Meeting
+
 **From:** Applied AI Club <applied-ai@uiowa.edu>
 **Subject:** Applied AI Club Meeting This Thursday - Guest Speaker!
 **Body:**
@@ -175,11 +189,13 @@ This week: Guest speaker from Google AI talking about careers in ML engineering
 Free pizza will be provided! 🍕
 
 Hope to see you there!
+
 - Applied AI Club Leadership Team
 
 ---
 
 ### Email 2: Campus Event
+
 **From:** Iowa Activities Board <iab@uiowa.edu>
 **Subject:** Homecoming Game Watch Party - Free Food & Prizes!
 **Body:**
@@ -190,6 +206,7 @@ Where: Iowa Memorial Union Main Lounge
 What: Watch the Hawkeyes take on Wisconsin!
 
 FREE:
+
 - Pizza and snacks
 - Raffles and prizes
 - T-shirts for first 100 attendees
@@ -201,6 +218,7 @@ Go Hawks!
 ---
 
 ### Email 3: Volunteer Opportunity
+
 **From:** Community Volunteer Center <volunteer@uiowa.edu>
 **Subject:** Volunteer for Food Bank This Weekend
 **Body:**
@@ -224,6 +242,7 @@ CVC Team
 ## Category: PROMOTIONAL 📢
 
 ### Email 1: Bookstore Discount
+
 **From:** Iowa Hawk Shop <marketing@hawkshop.com>
 **Subject:** 🎒 20% Off All Textbooks This Week Only!
 **Body:**
@@ -234,6 +253,7 @@ Get 20% OFF all textbooks this week!
 Sale ends Sunday 11/3 at midnight
 
 Shop online or in-store:
+
 - Iowa Memorial Union location
 - Free shipping on orders $50+
 - Use code: HAWKS20
@@ -245,10 +265,11 @@ Limited time offer - don't miss out!
 ---
 
 ### Email 2: Subscription Service
+
 **From:** Amazon Student <student@amazon.com>
 **Subject:** Try Amazon Prime Student FREE for 6 Months 📦
 **Body:**
-Hey student! 
+Hey student!
 
 Get 6 months of Prime Student for FREE:
 ✓ Free 2-day shipping
@@ -267,6 +288,7 @@ Verify your .edu email to start your free trial!
 ---
 
 ### Email 3: Campus Newsletter
+
 **From:** Daily Iowan Newsletter <newsletter@dailyiowan.com>
 **Subject:** 📰 This Week at Iowa - Campus News Roundup
 **Body:**
@@ -294,6 +316,7 @@ The Daily Iowan
 ## Category: OTHER 📦
 
 ### Email 1: Package Delivery
+
 **From:** FedEx Delivery <noreply@fedex.com>
 **Subject:** Package Delivery Notification - Tracking #785642398
 **Body:**
@@ -312,14 +335,16 @@ FedEx
 ---
 
 ### Email 2: Password Reset
+
 **From:** HawkID Services <noreply@uiowa.edu>
 **Subject:** HawkID Password Reset Confirmation
 **Body:**
 Your HawkID password was successfully reset on October 29, 2025 at 1:45 PM.
 
 If you did not make this change, contact ITS immediately:
+
 - Phone: 319-384-4357
-- Email: its-helpdesk@uiowa.edu
+- Email: <its-helpdesk@uiowa.edu>
 
 For security, do not reply to this automated message.
 
@@ -328,6 +353,7 @@ ITS - The University of Iowa
 ---
 
 ### Email 3: Personal Message
+
 **From:** Mom <mom.miller@gmail.com>
 **Subject:** Hope you're doing well!
 **Body:**

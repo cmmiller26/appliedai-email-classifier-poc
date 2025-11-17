@@ -1,6 +1,7 @@
 # Email Classification Testing Guide
 
-Complete guide for testing the email classification system using Azure OpenAI Service with test emails in your Inbox.
+Complete guide for testing the email classification system using Azure OpenAI
+Service with test emails in your Inbox.
 
 ---
 
@@ -22,7 +23,7 @@ Complete guide for testing the email classification system using Azure OpenAI Se
 
 ```bash
 # Start the FastAPI app
-python -m uvicorn app:app --reload
+python -m uvicorn src.main:app --reload
 
 # Open login page in browser
 open http://localhost:8000/auth/login
@@ -42,6 +43,7 @@ python tests/send_test_emails.py --token "$TOKEN"
 ```
 
 **What this does:**
+
 - ✅ Creates emails in Drafts with mock senders
 - ✅ Automatically moves them to Inbox
 - ✅ No category hints (clean for AI testing)
@@ -74,14 +76,15 @@ curl -X POST "http://localhost:8000/inbox/process-new"
 
 The test script uses a clever workaround to get realistic emails in your Inbox:
 
-1. **Creates in Drafts** - Emails are created as drafts, which allows setting custom "From" addresses
+1. **Creates in Drafts** - Emails are created as drafts, which allows setting
+   custom "From" addresses
 2. **Moves to Inbox** - Automatically moves each email from Drafts to Inbox
 3. **Result** - Emails appear in Inbox with proper mock senders!
 
 ### Why This Approach?
 
 | Feature | Our Approach | Sending Directly |
-|---------|--------------|------------------|
+| ------- | ------------ | ---------------- |
 | Mock sender in "From" field | ✅ Yes | ❌ No (always shows auth user) |
 | Bypasses spam filters | ✅ Yes | ❌ Gets blocked |
 | No category hints | ✅ Yes | ✅ Yes |
@@ -95,7 +98,7 @@ The test script uses a clever workaround to get realistic emails in your Inbox:
 The `tests/data/test_emails.md` file contains 18 test emails across 6 categories:
 
 | Category | Count | Example Subjects |
-|----------|-------|------------------|
+| -------- | ----- | ---------------- |
 | URGENT | 3 | "Assignment Due Tonight", "Registration Closes Tomorrow" |
 | ACADEMIC | 3 | "Week 8 Lecture Notes", "Your Midterm Grade is Available" |
 | ADMINISTRATIVE | 3 | "Complete Your FAFSA", "Housing Application Now Open" |
@@ -109,7 +112,7 @@ The `tests/data/test_emails.md` file contains 18 test emails across 6 categories
 
 ### Script Location
 
-```
+```text
 tests/send_test_emails.py
 ```
 
@@ -120,6 +123,7 @@ python tests/send_test_emails.py --help
 ```
 
 **Options:**
+
 - `--token TOKEN` - Access token (required)
 - `--categories LIST` - Filter by categories (e.g., "URGENT,ACADEMIC")
 - `--limit N` - Limit number of emails to create
@@ -129,21 +133,25 @@ python tests/send_test_emails.py --help
 ### Common Usage Patterns
 
 **Create all test emails (default - recommended):**
+
 ```bash
 python tests/send_test_emails.py --token "$TOKEN"
 ```
 
 **Preview emails before creating:**
+
 ```bash
 python tests/send_test_emails.py --token "$TOKEN" --dry-run
 ```
 
 **Test with one email:**
+
 ```bash
 python tests/send_test_emails.py --token "$TOKEN" --limit 1
 ```
 
 **Create specific category:**
+
 ```bash
 # Just URGENT category (3 emails)
 python tests/send_test_emails.py --token "$TOKEN" --categories "URGENT"
@@ -153,6 +161,7 @@ python tests/send_test_emails.py --token "$TOKEN" --categories "URGENT,ACADEMIC"
 ```
 
 **Add delay if needed:**
+
 ```bash
 # 2 second delay between operations
 python tests/send_test_emails.py --token "$TOKEN" --delay 2
@@ -168,12 +177,14 @@ Every time you run the script, it automatically:
 4. ✅ **Moves to Inbox** - Automatically moves each email from Drafts to Inbox
 
 **Result:**
-```
+
+```text
 From: Professor John Smith <john-smith@uiowa.edu>
 To: testuser@appliedaiuiowa.onmicrosoft.com
 Subject: CS 4980 Assignment Due Tonight at 11:59 PM
 
-This is a reminder that your machine learning assignment is due tonight at 11:59 PM.
+This is a reminder that your machine learning assignment is due tonight
+at 11:59 PM.
 
 Please submit via Canvas. Late submissions will receive a 10% penalty per day.
 ```
@@ -200,7 +211,8 @@ python tests/send_test_emails.py --token "$TOKEN"
 ```
 
 **Output:**
-```
+
+```text
 Parsing test emails from: tests/data/test_emails.md
 Found 18 emails across 6 categories
 
@@ -235,6 +247,7 @@ curl "http://localhost:8000/graph/fetch?folder=inbox&top=20"
 ```
 
 **Response:**
+
 ```json
 {
   "messages": [
@@ -266,6 +279,7 @@ curl -X POST "http://localhost:8000/inbox/process-new" | python -m json.tool
 ```
 
 **Expected Output:**
+
 ```json
 {
   "processed": 18,
@@ -300,6 +314,7 @@ curl -X POST "http://localhost:8000/inbox/process-new" | python -m json.tool
 ```
 
 **Expected Output:**
+
 ```json
 {
   "processed": 0,
@@ -320,6 +335,7 @@ curl "http://localhost:8000/debug/processed" | python -m json.tool
 ```
 
 **Expected Output:**
+
 ```json
 {
   "count": 18,
@@ -359,6 +375,7 @@ curl -X POST "http://localhost:8000/inbox/process-new" | python -m json.tool
 ```
 
 **Expected Output:**
+
 ```json
 {
   "processed": 1,
@@ -463,6 +480,7 @@ curl "http://localhost:8000/graph/fetch?folder=sentitems"
 **Error:** `{"error":"No token found"}`
 
 **Solution:** Authenticate first:
+
 ```bash
 open http://localhost:8000/auth/login
 ```
@@ -472,6 +490,7 @@ open http://localhost:8000/auth/login
 **Error:** `401 - Token is expired`
 
 **Solution:** Re-authenticate to get a fresh token:
+
 ```bash
 open http://localhost:8000/auth/login
 ```
@@ -481,6 +500,7 @@ open http://localhost:8000/auth/login
 **Error:** `403 - Access is denied`
 
 **Solution:** The token needs the `Mail.Send` scope. Re-authenticate:
+
 ```bash
 open http://localhost:8000/auth/login
 # Verify scopes include Mail.Send:
@@ -492,25 +512,31 @@ curl -s http://localhost:8000/debug/token | grep scopes
 **Problem:** Ran the script but don't see emails in Inbox
 
 **Solution:**
+
 1. Check the script output - did it successfully create and move emails?
 2. Verify with Graph API: `curl "http://localhost:8000/graph/fetch?folder=inbox&top=20"`
-3. Check if emails are stuck in Drafts: `curl "http://localhost:8000/graph/fetch?folder=drafts&top=20"`
+3. Check if emails are stuck in Drafts:
+   `curl "http://localhost:8000/graph/fetch?folder=drafts&top=20"`
 4. Try with `--limit 1` to test with one email first
 
 ### Emails show wrong sender
 
 **Problem:** Emails show "Test User" instead of mock sender
 
-**Solution:** This shouldn't happen with the current script (it always creates with mock senders). If you see this:
+**Solution:** This shouldn't happen with the current script (it always creates
+with mock senders). If you see this:
+
 1. Check you're using the latest version of the script
 2. Verify the script output shows "Moving X emails from Drafts to Inbox"
-3. The mock sender is only preserved when emails are created in Drafts first, then moved
+3. The mock sender is only preserved when emails are created in Drafts first,
+   then moved
 
 ### File not found error
 
 **Error:** `Test emails file not found: tests/data/test_emails.md`
 
 **Solution:** Run the script from the project root:
+
 ```bash
 # From project root (correct)
 python tests/send_test_emails.py --token "$TOKEN"
@@ -524,7 +550,8 @@ python tests/send_test_emails.py --token "$TOKEN"
 
 ## Best Practices
 
-### ✅ DO:
+### ✅ DO
+
 - Use the simple default command: `python tests/send_test_emails.py --token "$TOKEN"`
 - Test with `--limit 1` first before creating all 18 emails
 - Use `--categories` to test specific email types
@@ -532,7 +559,8 @@ python tests/send_test_emails.py --token "$TOKEN"
 - Run script from project root directory
 - Clean up test emails from Inbox when done testing
 
-### ❌ DON'T:
+### ❌ DON'T
+
 - Forget to re-authenticate if token expires
 - Run script from `tests/` directory
 - Add delays unless necessary (slows down testing)
@@ -592,11 +620,14 @@ asyncio.run(main())
 
 ### Overview
 
-The scheduled polling feature automatically processes new emails every 60 seconds (by default). This section covers testing the background scheduler functionality.
+The scheduled polling feature automatically processes new emails every 60
+seconds (by default). This section covers testing the background scheduler
+functionality.
 
 ### What Is the Scheduler?
 
 The scheduler (`src/scheduler.py`) is a background job that:
+
 - Runs email processing at configurable intervals (10-3600 seconds)
 - Handles errors gracefully without crashing the app
 - Provides status tracking (last run, next run, results)
@@ -605,8 +636,8 @@ The scheduler (`src/scheduler.py`) is a background job that:
 ### Scheduler Endpoints
 
 | Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `POST /scheduler/start?interval=60` | POST | Start/restart scheduler with custom interval |
+| -------- | ------ | ------- |
+| `POST /scheduler/start?interval=60` | POST | Start/restart with interval |
 | `POST /scheduler/stop` | POST | Stop the scheduler |
 | `GET /scheduler/status` | GET | Get scheduler status and statistics |
 
@@ -634,17 +665,20 @@ python -m uvicorn src.main:app --reload
 ```
 
 **Expected logs**:
-```
+
+```text
 INFO: [Scheduler] Started - processing every 60s
 INFO: Scheduler auto-started with interval=60s
 ```
 
 **Check status**:
+
 ```bash
 curl http://localhost:8000/scheduler/status
 ```
 
 **Expected response**:
+
 ```json
 {
   "running": true,
@@ -666,7 +700,8 @@ curl http://localhost:8000/scheduler/status
 2. Watch logs for automatic processing every 60 seconds
 
 **Expected logs after 60 seconds**:
-```
+
+```text
 INFO: [Scheduler] Processing new emails...
 INFO: Starting batch processing of new emails
 INFO: Fetched 10 emails from Graph API
@@ -674,7 +709,8 @@ INFO: [Scheduler] Processed 5 emails: URGENT=1, ACADEMIC=3, SOCIAL=1
 ```
 
 **If no new emails**:
-```
+
+```text
 INFO: [Scheduler] Processing new emails...
 INFO: [Scheduler] No new emails to process
 ```
@@ -707,6 +743,7 @@ curl -X POST http://localhost:8000/scheduler/stop
 ```
 
 **Expected response**:
+
 ```json
 {
   "message": "Scheduler stopped successfully",
@@ -722,6 +759,7 @@ curl http://localhost:8000/scheduler/status
 ```
 
 **Expected**:
+
 ```json
 {
   "running": false,
@@ -745,6 +783,7 @@ curl -X POST "http://localhost:8000/scheduler/start?interval=30"
 ```
 
 **Expected response**:
+
 ```json
 {
   "message": "Scheduler started successfully",
@@ -769,6 +808,7 @@ curl -X POST "http://localhost:8000/scheduler/start?interval=5"
 ```
 
 **Expected response** (400 Bad Request):
+
 ```json
 {
   "detail": "Interval must be at least 10 seconds"
@@ -786,7 +826,8 @@ curl -X POST "http://localhost:8000/scheduler/start?interval=5"
 **Simulation**: Let access token expire (~1 hour).
 
 **Expected logs**:
-```
+
+```text
 INFO: [Scheduler] Processing new emails...
 WARNING: No token found for demo_user
 ERROR: [Scheduler] Error during processing: Not authenticated. Token expired or missing.
@@ -808,6 +849,7 @@ After re-authenticating via `/auth/login`, next scheduler run should succeed.
 1. Stop the app (Ctrl+C)
 
 2. Add to `.env`:
+
    ```bash
    POLLING_INTERVAL=45
    SCHEDULER_AUTO_START=false
@@ -816,21 +858,26 @@ After re-authenticating via `/auth/login`, next scheduler run should succeed.
 3. Restart the app
 
 **Expected log**:
-```
+
+```text
 INFO: Scheduler initialized successfully
 INFO: Scheduler auto-start disabled (use POST /scheduler/start to enable)
 ```
 
-4. Verify scheduler NOT running:
+1. Verify scheduler NOT running:
+
    ```bash
    curl http://localhost:8000/scheduler/status
    ```
+
    Expected: `"running": false`
 
-5. Manually start (should use 45s interval):
+2. Manually start (should use 45s interval):
+
    ```bash
    curl -X POST http://localhost:8000/scheduler/start
    ```
+
    Expected: `"interval_seconds": 45`
 
 ✅ **Pass**: Environment variables control scheduler behavior.
@@ -844,7 +891,8 @@ INFO: Scheduler auto-start disabled (use POST /scheduler/start to enable)
 1. With scheduler running, stop the app (Ctrl+C)
 
 **Expected log**:
-```
+
+```text
 INFO: Email Sorting POC shutting down...
 INFO: [Scheduler] Shutting down scheduler...
 INFO: [Scheduler] Shutdown complete
@@ -863,6 +911,7 @@ INFO: [Scheduler] Shutdown complete
 #### Issue: "Scheduler not initialized" error
 
 **Solution**: Check logs for error messages. Ensure APScheduler is installed:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -870,6 +919,7 @@ pip install -r requirements.txt
 #### Issue: Processing runs but no emails classified
 
 **Solution**:
+
 1. Verify authentication: `curl http://localhost:8000/` shows `"authenticated": true`
 2. Verify emails exist: `curl "http://localhost:8000/graph/fetch?top=10"`
 3. Check if already processed: `curl "http://localhost:8000/debug/processed"`
@@ -877,12 +927,14 @@ pip install -r requirements.txt
 #### Issue: Duplicate processing of same emails
 
 **Solution**: This shouldn't happen due to idempotency. If it does:
+
 1. Check that `internetMessageId` is present in emails
 2. Verify `processed_emails` dict is not being cleared
 
 #### Issue: Scheduler runs too frequently
 
 **Solution**:
+
 1. Check interval: `curl http://localhost:8000/scheduler/status`
 2. Restart with correct interval: `curl -X POST "http://localhost:8000/scheduler/start?interval=60"`
 
